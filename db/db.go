@@ -7,7 +7,7 @@ import (
 var c *mgo.Collection
 
 func Init() {
-	session, err := mgo.Dial("10.220.8.17")
+	session, err := mgo.Dial("10.220.8.29")
 	if err != nil {
 		panic(err)
 	}

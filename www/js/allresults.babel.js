@@ -1,13 +1,31 @@
 app.AllResultsTable = React.createClass({
+    getInitialState: function() {
+        return { results: [] };
+    },
+    componentDidMount : function() {
+        $.ajax({
+            url: '/v0/resultmetadata',
+            dataType: 'json',
+            success: function(data) {
+                if (this.isMounted)
+                {
+                    this.setState({results: data});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
     render: function() {
         var nodes = 
-            this.props.resultsmeta.map(function (metadata){
+            this.state.results.map(function (r){
                 return (
                         <tr>
-                        <td> {metadata.date} </td>
-                        <td> {metadata.title} </td>
-                        <td> {metadata.toolchain} </td>
-                        <td> <a href={"#result/" + metadata.id}> View </a></td>
+                        <td> {r.metadata.date} </td>
+                        <td> {r.metadata.title} </td>
+                        <td> {r.metadata.toolchain} </td>
+                        <td> <a href={"#result/" + r.id}> View </a></td>
                         </tr>
                 );
             });

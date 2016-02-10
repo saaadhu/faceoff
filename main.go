@@ -14,6 +14,8 @@ func main() {
 	r := mux.NewRouter()
 	controllers.Init(r)
 
-	http.Handle("/", r)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
+	r.Handle("/", http.FileServer(http.Dir("./www")))
+
 	panic(http.ListenAndServe(":8080", r))
 }

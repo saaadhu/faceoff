@@ -1,14 +1,12 @@
+$(function() {
     app.Router = Backbone.Router.extend({
         routes : {
             "home" : "home",
             "result/:id" : "result"
         },
         home: function() {
-            var mets = [ { 'date': '2015-12-11', 'title' : 'jenkins-othersw-benchmark-282', 'toolchain' : '3.5.0.1667', 'id' : '4334sdfadsf' },
-                         { 'date': '2015-12-12', 'title' : 'jenkins-othersw-benchmark-283', 'toolchain' : '3.5.0.1663', 'id' : '883939'}
-                       ];
             ReactDOM.render(
-                    <app.AllResultsTable resultsmeta={mets} />,
+                    <app.AllResultsTable />,
                 document.getElementById('content')
             );
         },
@@ -21,6 +19,9 @@
         }
     });
 
+
     var router = new app.Router();
-    router.navigate('home', {trigger : true});
     Backbone.history.start();
+
+    router.navigate('home', {trigger : true});
+});
