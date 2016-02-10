@@ -11,9 +11,8 @@ $(function() {
             );
         },
         result: function(id) {
-            var res = { 'metadata' : { 'date': '2015-12-11', 'title' : 'jenkins-othersw-benchmark-282', 'toolchain' : '3.5.0.1667', 'id' : '4334sdfadsf' }, 'objsizes' : [ {'filename' : './foo.o', 'text' : 200, 'bss' : 400, 'data' : 50 }, {'filename' : './blah.o', 'text' : 400, 'bss' : 200, 'data' : 10 }], 'elfsizes' : [{'filename' : './test1.elf', 'text' : 800, 'bss' : 500, 'data' : 90 }] };
             ReactDOM.render(
-                    <app.Result result={res} />,
+                    <app.Result id={id} />,
                 document.getElementById('content')
             );
         }
