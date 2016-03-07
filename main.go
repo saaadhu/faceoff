@@ -17,5 +17,5 @@ func main() {
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
 	r.Handle("/", http.FileServer(http.Dir("./www")))
 
-	panic(http.ListenAndServe(":8080", r))
+	panic(http.ListenAndServe(":20000", r))
 }
