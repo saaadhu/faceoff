@@ -2,7 +2,8 @@ $(function() {
     app.Router = Backbone.Router.extend({
         routes : {
             "home" : "home",
-            "result/:id" : "result"
+            "result/:id" : "result",
+            "compare/*ids" : "compare"
         },
         home: function() {
             ReactDOM.render(
@@ -15,6 +16,12 @@ $(function() {
                     <app.Result id={id} />,
                 document.getElementById('content')
             );
+        },
+        compare: function(ids) {
+            ReactDOM.render(
+                    <app.CompareResults ids={ids} />,
+                document.getElementById('content')
+            );
         }
     });
 
@@ -22,5 +29,5 @@ $(function() {
     var router = new app.Router();
     Backbone.history.start();
 
-    router.navigate('home', {trigger : true});
+    //router.navigate('home', {trigger : true});
 });

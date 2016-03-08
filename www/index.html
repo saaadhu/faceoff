@@ -15,6 +15,26 @@
         <script src="js/jquery.min.js"></script>
         <script src="js/underscore.min.js"></script>
         <script src="js/backbone.min.js"></script>
+        <style>
+         path { 
+             stroke: steelblue;
+             stroke-width: 2;
+             fill: none;
+         }
+         .axis path,
+         .axis line {
+             fill: none;
+             stroke: grey;
+             stroke-width: 1;
+             shape-rendering: crispEdges;
+             font-size: 6px;
+         }
+         .legend {
+             font-size: 16px;
+             font-weight: bold;
+             text-anchor: middle;
+         }
+        </style>
     </head>
 
 
@@ -25,8 +45,11 @@
              // Global namespace for shared components
              var app = {};
          </script>
+         <script src="http://d3js.org/d3.v3.min.js"></script>
+         <script src="js/d3compare.js"></script>
         <script type="text/babel" src="js/singleresult.babel.js"></script>
         <script type="text/babel" src="js/allresults.babel.js"></script>
+        <script type="text/babel" src="js/compareresults.babel.js"></script>
         <script type="text/babel" src="js/faceoff.js"></script>
     </body>
 </html>
