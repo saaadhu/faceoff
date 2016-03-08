@@ -3,7 +3,8 @@ $(function() {
         routes : {
             "home" : "home",
             "result/:id" : "result",
-            "compare/*ids" : "compare"
+            "compare/*ids" : "compare",
+            "*path": "home"
         },
         home: function() {
             ReactDOM.render(
