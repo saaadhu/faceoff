@@ -38,6 +38,7 @@ app.CompareResults = React.createClass({
                 success: function(data) {
                     //data.elfsizes.sort(function(r1,r2) { return r1.filename.localeCompare(r2.filename)});
                     this.state.results.push(data);
+                    this.state.results = this.state.results.sort(function(x1,x2){x2.metadata.toolchain.localeCompare(x1.metadata.toolchain)});
                     this.setState({results: this.state.results});
                     /*
                     if (this.state.results.length == parts.length) {
@@ -53,6 +54,7 @@ app.CompareResults = React.createClass({
     },
     getFileNodes: function (elfdata) {
         var toolchainCount = this.state.results.length;
+        var baseToolchain = toolchainCount > 1 ? this.state.results[0].metadata.toolchain : "";
         var samesize = function(arr) {
             for(var i = 1; i<arr.length && i<toolchainCount; ++i) {
                 if (arr[i] != arr[i-1])
@@ -87,7 +89,7 @@ app.CompareResults = React.createClass({
                 return (<th> {r.metadata.toolchain}</th>)
             })}
             {this.state.results.map(function (r, i){
-                return (i != 0 ? <th> Diff {i} </th> : null)
+                return (i != 0 ? <th> {baseToolchain} - {r.metadata.toolchain} </th> : null)
             })}
                 </tr>
                 {nodes}
