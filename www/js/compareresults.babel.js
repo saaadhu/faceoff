@@ -104,7 +104,7 @@ app.CompareResults = React.createClass({
                 var sizes = (elfdata[o.filename] || (elfdata[o.filename] = []));
                 sizes[i] = o.text;
                 if (sizes.length > 1) {
-                    sizes[i + results.length - 1] = ((sizes[0] - sizes[i])/sizes[0])*100;
+                    sizes[i + results.length - 1] = ((sizes[i] - sizes[0])/sizes[0])*100;
                  }
             });
         });
