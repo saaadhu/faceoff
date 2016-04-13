@@ -52,9 +52,11 @@ app.CompareResults = React.createClass({
             });
         }
     },
+
     getFileNodes: function (elfdata) {
         var toolchainCount = this.state.results.length;
         var baseToolchain = toolchainCount > 1 ? this.state.results[0].metadata.toolchain : "";
+        var results = this.state.results;
         var samesize = function(arr) {
             for(var i = 1; i<arr.length && i<toolchainCount; ++i) {
                 if (arr[i] != arr[i-1])
@@ -72,13 +74,23 @@ app.CompareResults = React.createClass({
                 <td> {d.filename} </td>
                 {d.sizes.map(function (text, i){
                     return (i >= toolchainCount ?
-                            <td className={text > 0 ? "danger" : "" }>{text.toFixed(2)}%</td>
+                            <td className={text > 0 ? "danger" + Math.ceil(text/10) : "" }>{text.toFixed(2)}%</td>
                             :
                             <td> {text} </td>);
                 })}
                 </tr>)
             );
         });
+	var diffHeaderNodes = function(i) {
+	        if (i == 0)
+	            return null;
+
+		var elements = [];
+		for (var j = 0; j<i; j++) {
+		     elements.push(<th> {results[j].metadata.toolchain} vs {results[i].metadata.toolchain}</th>);
+		}
+		return elements;
+	     };
 
         return (
                 <table className="table table-striped">
@@ -89,7 +101,7 @@ app.CompareResults = React.createClass({
                 return (<th> {r.metadata.toolchain}</th>)
             })}
             {this.state.results.map(function (r, i){
-                return (i != 0 ? <th> {baseToolchain} - {r.metadata.toolchain} </th> : null)
+                return diffHeaderNodes(i);
             })}
                 </tr>
                 {nodes}
@@ -103,8 +115,10 @@ app.CompareResults = React.createClass({
             selector(r).forEach(function (o, j) {
                 var sizes = (elfdata[o.filename] || (elfdata[o.filename] = []));
                 sizes[i] = o.text;
-                if (sizes.length > 1) {
-                    sizes[i + results.length - 1] = ((sizes[i] - sizes[0])/sizes[0])*100;
+                if (sizes.length > 1 && i != 0) {
+                    var count = results.length;
+                    for (var k = 0; k<(count - 1); k++)
+                        sizes[i + k + results.length - 1] = ((sizes[i] - sizes[k])/sizes[k])*100;
                  }
             });
         });
@@ -135,6 +149,10 @@ app.CompareResults = React.createClass({
     },
     */
     render: function() {
+        /* Compute everything only once we have sizes for all toolchains */
+        if (this.props.ids.split('/').length != this.state.results.length)
+           return null;
+
         var elfdata = this.computeFileData(this.state.results, function(f) { return f.elfsizes});
         var objdata = this.computeFileData(this.state.results, function(f) { return f.objsizes});
         var elfnodes = this.getFileNodes(elfdata);
