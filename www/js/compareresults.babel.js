@@ -4,30 +4,6 @@ app.CompareResults = React.createClass({
     },
     componentDidMount : function() {
         var el = this.getDOMNode();
-        var results = [
-            {
-                "metadata": {
-                    "toolchain" : "3.4.5.1522"
-                },
-                "elfsizes": [
-                    {"filename": "foo.elf", "text":20, "bss": 40},
-                    {"filename": "bar.elf", "text":24, "bss": 44},
-                    {"filename": "baz.elf", "text":10, "bss": 22},
-                    
-                ]
-            },
-            {
-                "metadata": {
-                    "toolchain" : "3.4.4.102"
-                },
-                "elfsizes": [
-                    {"filename": "foo.elf", "text":10, "bss": 20},
-                    {"filename": "bar.elf", "text":14, "bss": 24},
-                    {"filename": "baz.elf", "text":90, "bss": 92},
-                    
-                ]
-            }
-        ];
         var parts = this.props.ids.split("/");
         var el = this.getDOMNode();
         for (var i = 0; i<parts.length; ++i) {
@@ -36,10 +12,13 @@ app.CompareResults = React.createClass({
                 url: '/v0/result/' + part,
                 dataType: 'json',
                 success: function(data) {
-                    //data.elfsizes.sort(function(r1,r2) { return r1.filename.localeCompare(r2.filename)});
                     this.state.results.push(data);
-                    this.state.results = this.state.results.sort(function(x1,x2){x2.metadata.toolchain.localeCompare(x1.metadata.toolchain)});
+
+                    if (this.state.results.length == parts.length) {
+		        this.state.results = this.state.results.sort(function(x1,x2){x2.metadata.toolchain.localeCompare(x1.metadata.toolchain)});
+                    }
                     this.setState({results: this.state.results});
+
                     /*
                     if (this.state.results.length == parts.length) {
                         app.d3chart.create(el,  this.state.results);
