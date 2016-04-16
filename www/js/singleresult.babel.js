@@ -27,7 +27,6 @@ app.Result = React.createClass({
                     <tr>
                     <td> {result.benchmark} </td>
                     <td> {result.filename} </td>
-                    <td> {result.filename} </td>
                     <td> {result.text} </td>
                     <td> {result.data} </td>
                     <td> {result.bss} </td>
