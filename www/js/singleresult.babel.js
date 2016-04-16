@@ -25,6 +25,8 @@ app.Result = React.createClass({
         var nodes = fileresults.map(function (result){
             return (
                     <tr>
+                    <td> {result.benchmark} </td>
+                    <td> {result.filename} </td>
                     <td> {result.filename} </td>
                     <td> {result.text} </td>
                     <td> {result.data} </td>
@@ -37,6 +39,7 @@ app.Result = React.createClass({
                 <table className="table table-striped">
                 <tbody>
                 <tr>
+                <th> Benchmark </th>
                 <th> File </th>
                 <th> <a href="#" onClick={this.handleSortByTextSize.bind(this, fileresults)}> Text Size </a> </th>
                 <th> Data Size </th>

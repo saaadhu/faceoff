@@ -50,6 +50,7 @@ app.CompareResults = React.createClass({
                 ? null
                 :
                 (<tr>
+                <td> {d.benchmark} </td>
                 <td> {d.filename} </td>
                 {d.sizes.map(function (text, i){
                     return (i >= toolchainCount ?
@@ -75,6 +76,7 @@ app.CompareResults = React.createClass({
                 <table className="table table-striped">
                 <tbody>
                 <tr>
+                <th Benchmark </th>
                 <th> File </th>
             {this.state.results.map(function (r){
                 return (<th> {r.metadata.toolchain}</th>)
