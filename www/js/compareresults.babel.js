@@ -76,7 +76,7 @@ app.CompareResults = React.createClass({
                 <table className="table table-striped">
                 <tbody>
                 <tr>
-                <th Benchmark </th>
+                <th> Benchmark </th>
                 <th> File </th>
             {this.state.results.map(function (r){
                 return (<th> {r.metadata.toolchain}</th>)
