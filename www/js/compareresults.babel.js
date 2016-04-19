@@ -1,4 +1,5 @@
 app.CompareResults = React.createClass({
+
     getInitialState: function() {
         return {results: []};
     },
@@ -12,12 +13,13 @@ app.CompareResults = React.createClass({
                 url: '/v0/result/' + part,
                 dataType: 'json',
                 success: function(data) {
-                    this.state.results.push(data);
+                    var results = this.state.results;
+                    results.push(data);
 
                     if (this.state.results.length == parts.length) {
-		        this.state.results = this.state.results.sort(function(x1,x2){x2.metadata.toolchain.localeCompare(x1.metadata.toolchain)});
+		        results.sort(function(x1,x2){ return x1.metadata.toolchain.localeCompare(x2.metadata.toolchain);});
                     }
-                    this.setState({results: this.state.results});
+                    this.setState({results: results});
 
                     /*
                     if (this.state.results.length == parts.length) {
@@ -94,7 +96,9 @@ app.CompareResults = React.createClass({
         var elfdata = {}
         results.forEach(function(r, i) {
             selector(r).forEach(function (o, j) {
-                var sizes = (elfdata[o.filename] || (elfdata[o.filename] = []));
+                var data = (elfdata[o.filename] || (elfdata[o.filename] = {}));
+                data.benchmark = o.benchmark;
+                var sizes = (data.sizes || (data.sizes = []));
                 sizes[i] = o.text;
                 if (sizes.length > 1 && i != 0) {
                     var count = results.length;
@@ -106,10 +110,10 @@ app.CompareResults = React.createClass({
 
         var retval = [];
         for (var key in elfdata) {
-            var sizes = elfdata[key];
+            var sizes = elfdata[key].sizes;
             // Ignore if not all toolchains produced a result
             if (sizes.length >= toolchainCount) {
-                retval.push({ filename: key, sizes: sizes});
+                retval.push({ filename: key, benchmark: elfdata[key].benchmark, sizes: sizes});
             }
         }
         retval.sort(function(e1,e2) {
@@ -122,6 +126,99 @@ app.CompareResults = React.createClass({
             return 0;
         });
         return retval;
+    },
+    computeSummaryData: function(results, selector, elfdata) {
+        var computeArithmeticMean = function(data) {
+            var totalSize = 0;
+            for (var i = 0; i<data.length; ++i) {
+               totalSize += data[i].text;
+            }
+            return totalSize / data.length;
+        };
+        var computeGeometricMean = function(data) {
+            var totalSize = 1;
+            for (var i = 0; i<data.length; ++i) {
+               if (data[i].text != 0 && !isNaN(data[i].text)) {
+                 totalSize += Math.log(data[i].text);
+               }
+            }
+            return Math.exp(totalSize/data.length);
+        };
+        var computeStandardDeviation = function(data) {
+            var totalSize = 0;
+            for (var i = 0; i<data.length; ++i) {
+               totalSize += data[i].text;
+            }
+            var mean = totalSize / data.length;
+            var variance = 0;
+            for (var i = 0; i<data.length; ++i) {
+               variance += Math.pow(data[i].text - mean, 2);
+            }
+            return Math.pow(variance/data.length, 0.5);
+        };
+        var computeImprovementsAndRegressions = function (results, elfdata) {
+           var summary = [];
+           // One data item per toolchain, except for the baseline
+           for (var i = 0; i<results.length - 1; ++i) {
+	      summary.push({improvements: 0, regressions: 0, nochanges: 0});
+           }
+           for (var i = 0; i<elfdata.length; ++i) {
+              for (var j = 1; j<results.length; j++) {
+                 if (elfdata[i].sizes[j] > elfdata[i].sizes[0])
+                   summary[j-1].regressions++;
+                 else if (elfdata[i].sizes[j] < elfdata[i].sizes[0])
+                   summary[j-1].improvements++;
+                 else
+                   summary[j-1].nochanges++;
+              }
+           }
+           return summary;
+        };
+        var getImprovementsRegressionsNodes = function (results) {
+	  var elements = [];
+	  for (var j = 0; j<results.length; j++) {
+	    elements.push((<td> {results[j].regressions} / {results[j].improvements} / {results[j].nochanges} </td>));
+	  }
+	  return elements;
+        }
+	return (
+        	<table className="table table-striped table-condensed">
+                <tbody>
+                   <tr>
+                     <th> Statistics </th>
+                     { results.map(function (r){
+                        return (<th> {r.metadata.toolchain} </th>)}
+                     }
+                   </tr>
+                   <tr>
+                      <td> Arithmetic Mean </td>
+                      { results.map(function (r) {
+                           return (<td> {computeArithmeticMean(selector(r)).toFixed(2)} </td>) })
+                      }
+                   </tr>
+		   <tr>
+		     <td> Geometric Mean </td>
+		     { results.map(function (r) {
+			   return (<td> {computeGeometricMean(selector(r)).toFixed(2)} </td>) })
+                     }
+		   </tr>
+		   <tr>
+		     <td> Standard Deviation </td>
+		     { results.map(function (r) {
+			   return (<td> {computeStandardDeviation(selector(r)).toFixed(2)} </td>) })
+                     }
+		   </tr>
+		   <tr>
+		     <td> Regressions/Improvements/NoChange</td>
+                     <td> NA </td>
+		     { 
+			getImprovementsRegressionsNodes(computeImprovementsAndRegressions(results, elfdata))
+                     }
+		   </tr>
+
+                </tbody>
+                </table>
+        );
     },
     /*
     componentDidUpdate: function() {
@@ -136,14 +233,20 @@ app.CompareResults = React.createClass({
 
         var elfdata = this.computeFileData(this.state.results, function(f) { return f.elfsizes});
         var objdata = this.computeFileData(this.state.results, function(f) { return f.objsizes});
+        var elfsummaryNodes = this.computeSummaryData(this.state.results, function(f) { return f.elfsizes}, elfdata);
+        var objsummaryNodes = this.computeSummaryData(this.state.results, function(f) { return f.objsizes}, objdata);
         var elfnodes = this.getFileNodes(elfdata);
         var objnodes = this.getFileNodes(objdata);
         return (
                 <div className="comparisonTable">
-                <h3> Object files </h3>
-                {objnodes}
+                <h3> ELF Summary </h3>
+                {elfsummaryNodes}
+                <h3> Object Summary </h3>
+                {objsummaryNodes}
                 <h3> ELF Files </h3>
                 {elfnodes}
+                <h3> Object files </h3>
+                {objnodes}
                 </div>
         );
     }
