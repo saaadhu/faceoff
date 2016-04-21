@@ -187,7 +187,7 @@ app.CompareResults = React.createClass({
                    <tr>
                      <th> Statistics </th>
                      { results.map(function (r){
-                        return (<th> {r.metadata.toolchain} </th>)}
+                        return (<th> {r.metadata.toolchain} </th>)})
                      }
                    </tr>
                    <tr>
