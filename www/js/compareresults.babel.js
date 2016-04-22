@@ -56,7 +56,7 @@ app.CompareResults = React.createClass({
                 <td> {d.filename} </td>
                 {d.sizes.map(function (text, i){
                     return (i >= toolchainCount ?
-                            <td className={text > 0 ? "danger" + Math.ceil(text/10) : "" }>{text.toFixed(2)}%</td>
+                            <td className={text > 0 ? "danger" + Math.min(Math.ceil(text/10), 10) : "" }>{text.toFixed(2)}%</td>
                             :
                             <td> {text} </td>);
                 })}
@@ -96,9 +96,16 @@ app.CompareResults = React.createClass({
         var elfdata = {}
         results.forEach(function(r, i) {
             selector(r).forEach(function (o, j) {
+
                 var data = (elfdata[o.filename] || (elfdata[o.filename] = {}));
                 data.benchmark = o.benchmark;
                 var sizes = (data.sizes || (data.sizes = []));
+
+		// Ignore if not all toolchains produced a result
+                if (i != 0 && sizes[i-1] == null) {
+                    return;
+                }
+
                 sizes[i] = o.text;
                 if (sizes.length > 1 && i != 0) {
                     var count = results.length;
