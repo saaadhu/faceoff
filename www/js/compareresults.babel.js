@@ -110,7 +110,7 @@ app.CompareResults = React.createClass({
                 if (sizes.length > 1 && i != 0) {
                     var count = results.length;
                     for (var k = 0; k<(count - 1); k++)
-                        sizes[i + k + results.length - 1] = ((sizes[i] - sizes[k])/sizes[k])*100;
+                        sizes[i + k + results.length - 1] = sizes[k] == 0 ? 0 : ((sizes[i] - sizes[k])/sizes[k])*100;
                  }
             });
         });
